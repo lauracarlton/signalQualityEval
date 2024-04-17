@@ -277,8 +277,11 @@ def SQE_2Dplot_func(snirfObj, metric, ax, colormap=plt.cm.jet, title='DQR', thre
      
     if threshold_ind != None:
         ticks = [vmin, (vmin+vmax)//2, threshold_ind, vmax]
+        ticks = np.squeeze(ticks)
+
     else:   
         ticks = [vmin, (vmin+vmax)//2, vmax]
+        ticks = np.squeeze(ticks)
         
     ax.plot(0, 1 , marker="^",markersize=16)
     plt.colorbar(sm,shrink =0.6, ticks=ticks)
@@ -429,7 +432,11 @@ def sci_psp(snirf_obj, mode, ax, window = 5, threshold_sci=0.7,threshold_psp=0.1
     
     sortedData, channels = sort_Data(snirf_obj)
     # cardiac_data = sortedData
-    cardiac_data = filter_data(sortedData, time, nChannels)
+    try:
+        cardiac_data = filter_data(sortedData, time, nChannels)
+    except:
+        cardiac_data = np.zeros(sortedData.shape)
+        
     cardiac_data[np.isnan(cardiac_data)] = 0
     
     sci = np.zeros([nChannels, n_windows])
@@ -588,38 +595,41 @@ def sci_psp(snirf_obj, mode, ax, window = 5, threshold_sci=0.7,threshold_psp=0.1
     
 #%% GVTD 
 
-# TODO
-# - switch to OD 
-
 def GVTD(snirf_obj, ax, savePath=None):
     
     nirs_obj_data = snirf_obj.nirs[0].data
     
 
     data = nirs_obj_data[0].dataTimeSeries
-    OD = data/np.mean(data,axis=0)
+
+    # convert to OD
+    OD = - np.log( data / np.mean(data, axis=0) )
+    OD[np.isnan(OD)] = 0
+    OD[np.isinf(OD)] = 0
+    
+    # filter OD
+    fny = (1/(snirf_obj.nirs[0].data[0].time[1] - snirf_obj.nirs[0].data[0].time[0])) / 2
+    fmin = 0.01/fny
+    fmax = 0.5/fny
+    b, a = signal.butter(4, (fmin, fmax), "bandpass")
+    OD_filt = signal.filtfilt(b,a,OD.T)
+    
     time = nirs_obj_data[0].time
-    measurements = nirs_obj_data[0].measurementList
     stim = snirf_obj.nirs[0].stim
-    # aux = snirf_obj.nirs[0].aux[0].dataTimeSeries
-    # aux_peaks = signal.find_peaks(aux)
-    nChans = len(measurements)//2
 
-    ### normalize the data and remove any nan entries ###
-    data_zscore = stats.zscore(OD)
-    data_zscore_cleaned = data_zscore[:,~np.isnan(data_zscore).any(axis=0)]    
-    # data_zscore_cleaned = data_zscore[:,~np.isinf(data_zscore).any(axis=0)]    
-
-    ### calculate the square of the temporal derivative ###
-    temp_deriv_z = np.diff(data_zscore_cleaned,n=1,axis=0)
-    temp_deriv_squared_z = temp_deriv_z**2
+    # Step 1: Find the matrix of the temporal derivatives
+    dataDiff = OD_filt - np.roll(OD_filt, shift=(0, -1), axis=(0, 1))
     
-    ### calculate GVTD by summing 1/nChans times the square root of the temporal derivative ###
-    GVTD_z = np.sqrt((1/nChans)*np.sum(temp_deriv_squared_z, axis=1))
+    # Step 2: Find the RMS across the channels for each time-point of dataDiff
+    gvtdTimeTrace = np.sqrt(np.mean(dataDiff[:, :dataDiff.shape[1]-1]**2, axis=0))
+    
+    # Step 3: Add a zero in the beginning for GVTD to have the same number of time-points as your original dataMatrix
+    gvtdTimeTrace = np.concatenate(([0], gvtdTimeTrace))
+    
     if ax == None:
-        return GVTD_z
+        return gvtdTimeTrace
     
-    ax.plot(time[:-1],GVTD_z,'k')
+    ax.plot(time,gvtdTimeTrace,'k')
     # ax.set_ylim([0,1])
     ax.set(xlabel='Time (s)',ylabel='GVTD',title='GVTD')
     # ax.set_ylim([min(GVTD_z), 1])
@@ -633,30 +643,11 @@ def GVTD(snirf_obj, ax, savePath=None):
         for n in range(nStims):
             onset = stimData[n,0]
             plt.axvline(x=onset, color=colours[i], lw=1)
-
-    # aux_dict = {}
-    # for i in range(len(aux_peaks[0])):
-        
-    #     height = aux[aux_peaks[0][i]]
-        
-    #     if str(height) not in aux_dict:
-    #         aux_dict[str(height)] = [aux_peaks[0][i]]
-    #     else:
-    #         aux_dict[str(height)].append(aux_peaks[0][i])
-        
-    # colours = ['b', 'r', 'c', 'g', 'y']
-    # keys = aux_dict.keys()
-    
-    # for i,key in enumerate(keys):
-    #     triggers = aux_dict[key]
-    #     for j in range(len(triggers)):
-    #         onset = time[triggers[j]]
-    #         plt.axvline(x=onset, color=colours[i], lw=1)
             
     if savePath != None:
         plt.savefig(savePath+'GVTD_timecourse.png')
         
-
+        
 #%% check saturation 
 
 def saturationCheck(snirf_obj, lam, signal_threshold=6*(10**6)):
@@ -674,7 +665,7 @@ def saturationCheck(snirf_obj, lam, signal_threshold=6*(10**6)):
    
     return saturated
 
-#%% generate SQE report 
+#%% e 
 def generate_figures(snirf_obj):
     '''
     generate individual figures

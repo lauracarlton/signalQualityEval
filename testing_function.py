@@ -51,13 +51,17 @@ from scipy import signal
 # title = 'walk/talk/stand paradigm test 2'
 # load the snirf object 
 # fig, ax = plt.subplots(1,1)
-fileName = '/Users/lauracarlton/Library/CloudStorage/GoogleDrive-lcarlton@bu.edu/My Drive/fNIRS/Data/NN22 Data Transfer/240206/ninjaNIRS2022_2024-02-06-17-24-36.snirf'
+fileName = '/Users/lauracarlton/Library/CloudStorage/GoogleDrive-lcarlton@bu.edu/My Drive/fNIRS/Data/motionArtefactStudy/subj-3/subj-3_task-MA_run-01.snirf'
 
 # snr_lam2 = snr(snirf_obj, lam=1,ax=ax, savePath=savePath1)
 
 snirf_obj = Snirf(fileName, 'r+')
 
-# all_subjs = mne_bids.get_entity_vals('/Users/lauracarlton/Downloads/Co-Location Study 2/','subject')
+
+ #%%
+fig2,ax = plt.subplots(1,1)
+gvtd = GVTD(snirf_obj, ax=ax)
+
 
 #%%
 title = ''

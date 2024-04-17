@@ -11,8 +11,8 @@ import os
 
 #%%
 
-subj = '3'
-rootDir = '/Users/lauracarlton/Library/CloudStorage/GoogleDrive-lcarlton@bu.edu/My Drive/fNIRS/Data/motionArtefactStudy/subj' + subj + '/'
+subj = '4'
+rootDir = '/Users/lauracarlton/Library/CloudStorage/GoogleDrive-lcarlton@bu.edu/My Drive/fNIRS/Data/motionArtefactStudy/subj-' + subj + '/'
 saveDir = rootDir  + 'DQR_export/'
 
 if not os.path.exists(saveDir):
@@ -20,10 +20,11 @@ if not os.path.exists(saveDir):
     
 #%%
 
-tasks = [['RS',['01','02','03']],
-         ['MW', ['01']],
+tasks = [#['RS',['01','02']],
+         # ['WM', ['01', '02', '03', '04']],
          ['MA', ['01']],
-         ['squats', ['01']],
+         # ['MAaudio', ['01']],
+          ['squats', ['01']],
          ['Wcont', ['01']],
          ['WSalt', ['01']]  ]
 

@@ -192,3 +192,19 @@ def generateFullReport(rootDir, excluded = None, saveFig=0, remove_short=0):
                 plt.savefig(savePath_group, dpi=1200)
       
 
+                resultDict = {}
+                fieldName = 'task-' + task 
+                        
+                if ses != None:
+                    fieldName += '_session-' + ses
+                if run != None:
+                    fieldName += '_run-' + run
+                
+                resultDict[fieldName + '_snr'] = snr_allruns
+                resultDict[fieldName + '_GVTD'] = GVTD_allruns
+                resultDict[fieldName + '_mean_percent_runs'] = mean_percent_runs
+                resultDict[fieldName + '_psp_allruns'] = psp_allruns
+                resultDict[fieldName + '_sci_allruns'] = sci_allruns
+                
+    
+    return resultDict
