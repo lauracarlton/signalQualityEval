@@ -284,7 +284,7 @@ def SQE_2Dplot_func(snirfObj, metric, ax, colormap=plt.cm.jet, title='DQR', thre
         ticks = np.squeeze(ticks)
         
     ax.plot(0, 1 , marker="^",markersize=16)
-    plt.colorbar(sm,shrink =0.6, ticks=ticks)
+    plt.colorbar(sm, shrink =0.6, ticks=ticks)
     ax.set_title(title)
     plt.tight_layout()
     plt.axis('equal')
@@ -293,40 +293,6 @@ def SQE_2Dplot_func(snirfObj, metric, ax, colormap=plt.cm.jet, title='DQR', thre
     if savePath is not None: 
         plt.savefig(savePath, dpi=1200)
     
-
-#%% std of temporal derivative
-
-def std_tempDiff(snirf_obj, lam, ax, threshold=0.2, savePath=None):
-    '''
-    standard deviation of the temporal difference
-    lam -> determines which wavelength to evaluate - 0 or 1
-    ax -> axes object to plot the figure
-    threhold -> metrics below threshold plotted as dotted line 
-    '''
-    
-    wavelength = int(snirf_obj.nirs[0].probe.wavelengths[lam])
-
-    sortedData = sort_Data(snirf_obj)
-    data_lam = sortedData[:,:,lam]
-    
-    ### normalize the data ###
-    data_demeaned = stats.zscore(data_lam, axis=0,ddof=0)
-    ### calculate the temporal difference ###
-    chanDiff = np.diff(data_demeaned,n=1,axis=0)
-    ### calculate the standard deviation of the temporal difference ###
-    chanSD = np.std(chanDiff, axis = 0)
-    
-    colors=["red","yellow","green"]
-    nodes = [0.0, 0.5, 1.0]
-    cmap = clrs.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, colors))) 
-    
-    threshold_col = [1 if chanSD[u] < threshold else 0 for u in range(len(chanSD))]
-    
-    if savePath != None: 
-        savePath_sd = savePath+'tempSD_' + wavelength + '_montage.png'
-        SQE_2Dplot_func(snirf_obj, metric=chanSD, ax=ax, colormap=cmap, threshold_col=threshold_col, threshold_ind = threshold, savePath=savePath_sd, title='SD of temporal derivative ' + wavelength)
-    else:
-        SQE_2Dplot_func(snirf_obj, metric=chanSD, ax=ax, colormap=cmap, threshold_col=threshold_col, thredhold_ind = threshold, savePath=savePath, title='SD of temporal derivative ' + wavelength)
 
 
 #%% SNR
@@ -665,13 +631,12 @@ def saturationCheck(snirf_obj, lam, signal_threshold=6*(10**6)):
    
     return saturated
 
-#%% e 
+#%%  
 def generate_figures(snirf_obj):
     '''
     generate individual figures
     '''
     snr(snirf_obj)
-    std_tempDiff(snirf_obj)
     sci_channel(snirf_obj)
     sci_psp(snirf_obj)
     GVTD(snirf_obj)
