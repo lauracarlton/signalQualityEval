@@ -426,17 +426,17 @@ def sci_psp(snirf_obj, mode, ax, window = 5, threshold_sci=0.7,threshold_psp=0.1
             # c2[np.isnan(c2)] = 0
 
             similarity = signal.correlate(c1, c2, 'full')
-            similarity = window_samples*similarity/np.sqrt(np.sum(abs(c1)**2 * np.sum(abs(c2)**2)))
+            similarity = similarity/np.sqrt(np.sum(abs(c1)**2) * np.sum(abs(c2)**2))
 
 
             sci[ii, w] = stats.pearsonr(c1,c2)[0] #similarity[lags==0] #s
 
-            [f, pxx] = signal.periodogram(similarity, fs=fs, window=np.hamming(len(similarity)), nfft=len(similarity), scaling='density')
+            [f, pxx] = signal.periodogram(similarity, fs=fs, window=np.hamming(len(similarity)), nfft=len(similarity), scaling='spectrum')
             
             psp[ii, w] = max(pxx)
             
-    sci  = (sci - np.nanmin(sci))/(np.nanmax(sci) - np.nanmin(sci))
-    psp  = (psp - np.nanmin(psp))/(np.nanmax(psp) - np.nanmin(psp))
+    # sci  = (sci - np.nanmin(sci))/(np.nanmax(sci) - np.nanmin(sci))
+    # psp  = (psp - np.nanmin(psp))/(np.nanmax(psp) - np.nanmin(psp))
     # sci[np.isnan(sci)] = 0
     # sci[np.isinf(sci)] = 0
     # sci[np.isneginf(sci)] = 0
