@@ -67,7 +67,7 @@ def sort_Data(snirf_obj, interpolate=True):
                 i+=1
     return sortedData, channels
 
-def filter_data(sortedData, time, nChannels, fcut_min = 0.5, fcut_max = 2.4):
+def filter_data(sortedData, time, nChannels, fcut_min = 0.5, fcut_max = 2.5):
     
     '''
     use a butterworth bandpass filter between 0.5 and 2.4
@@ -79,7 +79,7 @@ def filter_data(sortedData, time, nChannels, fcut_min = 0.5, fcut_max = 2.4):
 
     T = time[1]-time[0]
     fs = 1/T
-    b,a = signal.butter(1,[fcut_min*(2/fs), fcut_max*(2/fs)], btype='bandpass')
+    b,a = signal.butter(4,[fcut_min*(2/fs), fcut_max*(2/fs)], btype='bandpass')
     
     cardiac_data = np.zeros(np.shape(sortedData))
     
@@ -631,7 +631,7 @@ def saturationCheck(snirf_obj, lam, signal_threshold=6*(10**6)):
    
     return saturated
 
-#%%  
+#%%  generate large plots 
 def generate_figures(snirf_obj):
     '''
     generate individual figures
