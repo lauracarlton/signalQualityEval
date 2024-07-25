@@ -19,7 +19,7 @@ import cedalion.nirs
 import cedalion.xrutils as xrutils
 
 #%%
-def SQE_2Dplot_func(snirfObj, metric, ax, colormap=plt.cm.bwr, title='DQR', threshold_ind = None, threshold_col = None, saturation=None, vmin=0, vmax=1, savePath = None, remove_short=0):
+def plot_circle_probe(snirfObj, metric, ax, colormap=plt.cm.bwr, title=None, threshold_ind = None, threshold_col = None, saturation=None, vmin=0, vmax=1, savePath = None, remove_short=0):
     '''
     CREATE A 2D MONTAGE OF OPTODES WITH CHANNELS COLOURED ACCORDING TO A GIVEN METRIC
     
