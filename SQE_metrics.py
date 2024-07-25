@@ -67,7 +67,7 @@ def sort_Data(snirf_obj, interpolate=True):
                 i+=1
     return sortedData, channels
 
-def filter_data(sortedData, time, nChannels, fcut_min = 0.5, fcut_max = 2.4):
+def filter_data(sortedData, time, nChannels, fcut_min = 0.5, fcut_max = 2.5):
     
     '''
     use a butterworth bandpass filter between 0.5 and 2.4
@@ -79,7 +79,7 @@ def filter_data(sortedData, time, nChannels, fcut_min = 0.5, fcut_max = 2.4):
 
     T = time[1]-time[0]
     fs = 1/T
-    b,a = signal.butter(1,[fcut_min*(2/fs), fcut_max*(2/fs)], btype='bandpass')
+    b,a = signal.butter(4,[fcut_min*(2/fs), fcut_max*(2/fs)], btype='bandpass')
     
     cardiac_data = np.zeros(np.shape(sortedData))
     
@@ -284,7 +284,7 @@ def SQE_2Dplot_func(snirfObj, metric, ax, colormap=plt.cm.jet, title='DQR', thre
         ticks = np.squeeze(ticks)
         
     ax.plot(0, 1 , marker="^",markersize=16)
-    plt.colorbar(sm, shrink =0.6, ticks=ticks)
+    # plt.colorbar(sm, shrink =0.6, ticks=ticks)
     ax.set_title(title)
     plt.tight_layout()
     plt.axis('equal')
@@ -426,7 +426,7 @@ def sci_psp(snirf_obj, mode, ax, window = 5, threshold_sci=0.7,threshold_psp=0.1
             # c2[np.isnan(c2)] = 0
 
             similarity = signal.correlate(c1, c2, 'full')
-            similarity = similarity/np.sqrt(np.sum(abs(c1)**2) * np.sum(abs(c2)**2))
+            # similarity = window_samples*similarity/np.sqrt(np.sum(abs(c1)**2 * np.sum(abs(c2)**2)))
 
 
             sci[ii, w] = stats.pearsonr(c1,c2)[0] #similarity[lags==0] #s
